@@ -8,17 +8,6 @@ env.use_ssh_config = True
 from . import server
 from . import project
 
-# project config
-
-PROJECTS = {
-    'microsfm': {
-        'src': [
-            {'gitrepo': 'git://github.com/mediastandardstrust/superfastmatch.git',
-             'dirname': 'superfastmatch'},
-        ],
-        'extra_packages': ['libunwind7-dev', 'zlib1g-dev', 'subversion'],
-    }
-}
 
 def _load_json(fname):
     fname = os.path.join(env.CONFIG_DIR, fname)

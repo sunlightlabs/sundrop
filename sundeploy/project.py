@@ -35,16 +35,16 @@ def add_user_ebs():
             volume.attach(env.server['instance_id'], drv.replace('xv', 's'))
             # break if we suceeded
             break
-        except boto.exception.EC2ResponseError:
+        except boto.exception.EC2ResponseError as e:
             puts('failed to attach {0}'.format(drv))
     else:
         # only executed if we didn't break
-        raise Exception('unable to mount a drive')
+        abort('unable to mount a drive')
 
 
     _ec2.create_tags([volume.id],
                        {'Name': '~{0} for {1}'.format(env.projname,
-                                                  env.proj['instance_id'])})
+                                                  env.server['instance_id'])})
 
     puts('waiting for {0}...'.format(drv))
     while not exists(drv):
@@ -55,7 +55,7 @@ def add_user_ebs():
     append('/etc/fstab',
            '{0} /projects/{1} xfs defaults 0 0'.format(drv, env.projname),
            use_sudo=True)
-    sudo('adduser {0} --home /projects/{0}'.format(env.projname))
+    sudo('useradd {0} --home-dir /projects/{0}'.format(env.projname))
     sudo('mkdir -p /projects/{0}'.format(env.projname))
     sudo('mount /projects/{0}'.format(env.projname))
 
@@ -192,6 +192,12 @@ def restart_uwsgi():
 
 
 @task
+def do_postinstall():
+    for pi_cmd in env.proj.get('post_install', []):
+        sudo(pi_cmd)
+
+
+@task
 def rollout():
     # mount drive
     add_user_ebs()
@@ -201,9 +207,19 @@ def rollout():
     # fill out home dir
     make_homedir()
     checkout()
-    make_venv()
+
+    # if they explicity set venv=false, skip venv
+    if not env.proj.get('venv', True):
+        puts('skipping venv creation')
+        return
+    else:
+        make_venv()
+
     # push any extras that may exist
     push_extras()
 
     # push server-wide changes
     push_serverconf()
+
+    # do post-install stuff
+    do_postinstall()
