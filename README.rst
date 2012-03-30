@@ -13,8 +13,8 @@ Installation
 After checking out sundeploy, symlink the file sundeploy.sh to any location on your path.
 
 Additionally, sundeploy relies on you having Python >= 2.6 and the following packages:
-    * fabric
-    * boto
+* fabric
+* boto
 
 Getting Started
 ===============
@@ -24,15 +24,15 @@ only purpose of this file is to tell sundeploy where it should look for your
 projects tree.
 
 The projects directory is the most important part of using sundeploy, we'll
-walk through a simple, single-project project tree, or see the `projectsdir`
+walk through a simple, single-project project tree, or see the ``projectsdir``
 documentation for detailed documentation on all options available.
 
 Creating a Project Directory
 ----------------------------
 
-A project directory is required to have a few files: `servers.json`,
- `projects.json`, and a directory named for each project specified in
-`project.json`.
+A project directory is required to have a few files: ``servers.json``,
+``projects.json``, and a directory named for each project specified in
+``project.json``.
 
 `servers.json` - This file tells sundeploy about all of the servers that you
 might use.  It takes the form of a JSON object with keys being server names
@@ -42,6 +42,7 @@ It is important to specify `instance_id`, `public_dns`, and `zone`, though
 there are several other optional fields (see `projectsdir` docs).
 
 Example servers.json::
+
     {
     "main": {
         "instance_id": "i8c455008",
@@ -50,12 +51,14 @@ Example servers.json::
     }
     }
 
+
 `projects.json` - This file describes all of your projects.  It is important
 to specify what server(s) you want your project to run on (`production` and
 `staging`), the size of the EBS volume you wish to create (`ebs_size_gb`), and
 any repositories that need to be checked out (`src`).
 
 Example projects.json::
+
     {
     "labssite": {
         "production": "main",
@@ -76,7 +79,6 @@ Detailed Documentation
 ------------
 
 [sundeploy]
-~~~~~~~~~~~
 
 config_dir
     path to config directory, ~ will be expanded
