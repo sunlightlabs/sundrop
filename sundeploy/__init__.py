@@ -25,16 +25,10 @@ def _init():
     except:
         abort('no [sundeploy] config_dir set in {0}'.format(CONFIG_FILE))
 
-    env.SERVERS = _load_json('servers.json')
     env.PROJECTS = _load_json('projects.json')
 
 # always call init
 _init()
-
-@task
-def lsserver():
-    for p in env.SERVERS:
-        puts('    {0}'.format(p))
 
 @task
 def lsproj():
@@ -46,6 +40,3 @@ def proj(projname):
     env.projname = projname
     env.projdir = os.path.join(env.CONFIG_DIR, projname)
     env.proj = env.PROJECTS[projname]
-    # right now we only support production, staging support coming
-    env.server = env.SERVERS[env.PROJECTS[projname]['production']]
-    env.hosts = [env.PROJECTS[projname]['production']]

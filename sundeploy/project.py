@@ -53,7 +53,7 @@ def add_user_ebs():
 
     _ec2.create_tags([volume.id],
                        {'Name': '~{0} for {1}'.format(env.projname,
-                                                      instance_id)
+                                                      instance_id)})
 
     puts('waiting for {0}...'.format(drv))
     while not exists(drv):
