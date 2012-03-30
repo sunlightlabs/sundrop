@@ -2,7 +2,7 @@ import os
 import json
 import ConfigParser
 
-from fabric.api import env, task, abort
+from fabric.api import env, task, abort, puts
 env.use_ssh_config = True
 
 from . import server
@@ -41,6 +41,16 @@ def _init():
 
 # always call init
 _init()
+
+@task
+def lsserver():
+    for p in env.SERVERS:
+        puts('    {0}'.format(p))
+
+@task
+def lsproj():
+    for p in env.PROJECTS:
+        puts('    {0}'.format(p))
 
 @task
 def proj(projname):
