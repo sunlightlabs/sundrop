@@ -19,10 +19,19 @@ def install_extra_packages():
         sudo('aptitude update')
         sudo('aptitude install {0}'.format(' '.join(packages)))
 
+def _get_ec2_metadata(type):
+    with hide('running', 'stdout',  'stderr'):
+        r = sudo('wget -q -O - http://169.254.169.254/latest/meta-data/{0}'.format(type))
+        return r
+
 @task
 def add_user_ebs():
+    # get ec2 metadata
+    zone = _get_ec2_metadata('placement/availability-zone')
+    instance_id = _get_ec2_metadata('instance-id')
+
     # create and attach drive
-    volume = _ec2.create_volume(env.proj['ebs_size_gb'], env.server['zone'])
+    volume = _ec2.create_volume(env.proj['ebs_size_gb'], zone)
 
     # figure out where drive should be mounted
     letters = 'fghijklmnopqrs'
@@ -32,7 +41,7 @@ def add_user_ebs():
         try:
             drv = drv_template.format(letter)
             # attach the drive, replacing xv with sd b/c of amazon quirk
-            volume.attach(env.server['instance_id'], drv.replace('xv', 's'))
+            volume.attach(instance_id, drv.replace('xv', 's'))
             # break if we suceeded
             break
         except boto.exception.EC2ResponseError as e:
@@ -44,7 +53,7 @@ def add_user_ebs():
 
     _ec2.create_tags([volume.id],
                        {'Name': '~{0} for {1}'.format(env.projname,
-                                                  env.server['instance_id'])})
+                                                      instance_id)
 
     puts('waiting for {0}...'.format(drv))
     while not exists(drv):
@@ -102,6 +111,7 @@ def make_venv():
 def push_serverconf():
     nginx_config = '{0}/nginx.conf'.format(env.projdir)
     uwsgi_config = '{0}/uwsgi.ini'.format(env.projdir)
+    upstart_config = '{0}/upstart.conf'.format(env.projdir)
     cron_config = '{0}/cron'.format(env.projdir)
 
     if os.path.exists(nginx_config):
@@ -115,6 +125,10 @@ def push_serverconf():
             '/etc/uwsgi/apps-available/{0}.ini'.format(env.projname),
             use_sudo=True, mode=0466)
         sudo('ln -sf /etc/uwsgi/apps-available/{0}.ini /etc/uwsgi/apps-enabled/{0}.ini'.format(env.projname))
+
+    if os.path.exists(upstart_config):
+        put(upstart_config, '/etc/init/{0}.conf'.format(env.projname),
+            use_sudo=True, mode=0466)
 
     if os.path.exists(cron_config):
         # copy cron over, update it, and drop it
@@ -143,12 +157,15 @@ def _remotediff(localfile, remote_path):
 def compare_serverconf():
     nginx_config = '{0}/nginx.conf'.format(env.projdir)
     uwsgi_config = '{0}/uwsgi.ini'.format(env.projdir)
+    upstart_config = '{0}/upstart.conf'.format(env.projdir)
     cron_config = '{0}/cron'.format(env.projdir)
 
     _remotediff(nginx_config,
                 '/etc/nginx/sites-available/{0}'.format(env.projname))
     _remotediff(uwsgi_config,
                 '/etc/uwsgi/apps-available/{0}.ini'.format(env.projname))
+    _remotediff(upstart_config,
+                '/etc/upstart/{0}.conf'.format(env.projname))
     with settings(hide('running', 'stderr', 'stdout', 'warnings'), warn_only=True):
         sudo('crontab -l > /tmp/crondump-{0}'.format(env.projname),
              user=env.projname)
