@@ -1,8 +1,8 @@
 =========
-sundeploy
+sundrop
 =========
 
-sundeploy is a tool used to automate deployments of Sunlight Foundation projects.
+sundrop is a tool used to automate deployments of Sunlight Foundation projects.
 
 It currently takes the form of a number of [fabric](http://fabfile.org) tasks and a shell script that serves as an entry point.
 
@@ -10,20 +10,20 @@ It currently takes the form of a number of [fabric](http://fabfile.org) tasks an
 Installation
 ============
 
-After checking out sundeploy, symlink the file sundeploy.sh to any location on your path.
+After checking out sundrop, symlink the file sundrop.sh to any location on your path.
 
-Additionally, sundeploy relies on you having Python >= 2.6 and the following packages:
+Additionally, sundrop relies on you having Python >= 2.6 and the following packages:
 * fabric
 * boto
 
 Getting Started
 ===============
 
-sundeploy keeps its config in an ini-style file at ~/.sundeploy, right now the
-only purpose of this file is to tell sundeploy where it should look for your
+sundrop keeps its config in an ini-style file at ~/.sundrop, right now the
+only purpose of this file is to tell sundrop where it should look for your
 projects tree.
 
-The projects directory is the most important part of using sundeploy, we'll
+The projects directory is the most important part of using sundrop, we'll
 walk through a simple, single-project project tree, or see the ``projectsdir``
 documentation for detailed documentation on all options available.
 
@@ -56,10 +56,10 @@ Example projects.json::
 Detailed Documentation
 ======================
 
-~/.sundeploy
+~/.sundrop
 ------------
 
-[sundeploy]
+[sundrop]
 
 config_dir
     path to config directory, ~ will be expanded

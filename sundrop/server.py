@@ -1,5 +1,5 @@
 """
-    server-specific sundeploy tasks
+    server-specific sundrop tasks
 """
 from fabric.api import sudo, task
 from fabric.contrib.files import append

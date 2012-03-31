@@ -21,13 +21,13 @@ def _load_json(fname):
 
 
 def _init():
-    CONFIG_FILE = os.path.expanduser('~/.sundeploy')
+    CONFIG_FILE = os.path.expanduser('~/.sundrop')
     cp = ConfigParser.ConfigParser()
     cp.read(CONFIG_FILE)
     try:
-        env.CONFIG_DIR = os.path.expanduser(cp.get('sundeploy', 'config_dir'))
+        env.CONFIG_DIR = os.path.expanduser(cp.get('sundrop', 'config_dir'))
     except:
-        abort('no [sundeploy] config_dir set in {CONFIG_FILE}'.format(**env))
+        abort('no [sundrop] config_dir set in {CONFIG_FILE}'.format(**env))
 
     try:
         env.AWS_KEY = cp.get('aws', 'key')
