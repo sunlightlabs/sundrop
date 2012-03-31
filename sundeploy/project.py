@@ -6,11 +6,6 @@ from fabric.colors import red, green
 from fabric.contrib.files import append, contains, exists
 import boto
 
-# Uses ~/.boto so credentials don't have to be in source. Should look like
-# [Credentials]
-# aws_access_key_id = <your access key>
-# aws_secret_access_key = <your secret key>
-_ec2 = boto.connect_ec2()
 
 @task
 def install_extra_packages():
@@ -26,12 +21,17 @@ def _get_ec2_metadata(type):
 
 @task
 def add_user_ebs():
+    # Uses ~/.boto so credentials don't have to be in source. Should look like
+    # [Credentials]
+    # aws_access_key_id = <your access key>
+    # aws_secret_access_key = <your secret key>
+    ec2 = boto.connect_ec2()
     # get ec2 metadata
     zone = _get_ec2_metadata('placement/availability-zone')
     instance_id = _get_ec2_metadata('instance-id')
 
     # create and attach drive
-    volume = _ec2.create_volume(env.proj['ebs_size_gb'], zone)
+    volume = ec2.create_volume(env.proj['ebs_size_gb'], zone)
 
     # figure out where drive should be mounted
     letters = 'fghijklmnopqrs'
@@ -51,8 +51,8 @@ def add_user_ebs():
         abort('unable to mount a drive')
 
 
-    _ec2.create_tags([volume.id],
-                       {'Name': '~{0} for {1}'.format(env.projname,
+    ec2.create_tags([volume.id],
+                    {'Name': '~{0} for {1}'.format(env.projname,
                                                       instance_id)})
 
     puts('waiting for {0}...'.format(drv))
