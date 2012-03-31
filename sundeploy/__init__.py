@@ -27,6 +27,15 @@ def _init():
     except:
         abort('no [sundeploy] config_dir set in {CONFIG_FILE}'.format(**env))
 
+    try:
+        env.AWS_KEY = cp.get('aws', 'key')
+    except:
+        pass
+    try:
+        env.AWS_SECRET = cp.get('aws', 'secret')
+    except:
+        pass
+
     env.PROJECTS = _load_json('projects.json')
 
 

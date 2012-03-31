@@ -21,11 +21,7 @@ def _get_ec2_metadata(type):
 
 @task
 def add_user_ebs():
-    # Uses ~/.boto so credentials don't have to be in source. Should look like
-    # [Credentials]
-    # aws_access_key_id = <your access key>
-    # aws_secret_access_key = <your secret key>
-    ec2 = boto.connect_ec2()
+    ec2 = boto.connect_ec2(env.AWS_KEY, env.AWS_SECRET)
     # get ec2 metadata
     zone = _get_ec2_metadata('placement/availability-zone')
     instance_id = _get_ec2_metadata('instance-id')
