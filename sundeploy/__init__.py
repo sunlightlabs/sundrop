@@ -57,6 +57,7 @@ def staging():
         ))
     env.server_type = 'staging'
 
+
 @task
 def proj(projname):
     env.projname = projname

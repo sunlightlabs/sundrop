@@ -34,22 +34,23 @@ def add_user_ebs():
     volume = ec2.create_volume(env.proj['ebs_size_gb'], zone)
 
     # figure out where drive should be mounted
-    letters = 'fghijklmnopqrs'
-    drv_template='/dev/xvd{0}'
+    letters = 'fghijklmnopqrstuvw'
 
     for letter in letters:
-        try:
-            drv = drv_template.format(letter)
-            # attach the drive, replacing xv with sd b/c of amazon quirk
-            volume.attach(instance_id, drv.replace('xv', 's'))
-            # break if we suceeded
-            break
-        except boto.exception.EC2ResponseError as e:
-            puts('failed to attach {0}'.format(drv))
+        drv = '/dev/xvd{0}'.format(letter)
+
+        # skip this letter if already mounted
+        if contains('/proc/partitions', 'xvd{0}'.format(letter)):
+            continue
+
+        # attach the drive, replacing xv with sd b/c of amazon quirk
+        volume.attach(instance_id, drv.replace('xv', 's'))
+        # break if we suceeded
+        break
     else:
         # only executed if we didn't break
-        abort('unable to mount a drive')
-
+        abort('unable to mount drive')
+        # TODO: ensure drive is cleaned up
 
     ec2.create_tags([volume.id],
                     {'Name': '~{0} for {1}'.format(env.projname,
@@ -118,13 +119,15 @@ def pushconf():
         put(nginx_config,
             '/etc/nginx/sites-available/{0}'.format(env.projname),
             use_sudo=True, mode=0466)
-        sudo('ln -sf /etc/nginx/sites-available/{0} /etc/nginx/sites-enabled/{0}'.format(env.projname))
+        sudo('ln -sf /etc/nginx/sites-available/{0} '
+             '/etc/nginx/sites-enabled/{0}'.format(env.projname))
 
     if os.path.exists(uwsgi_config):
         put(uwsgi_config,
             '/etc/uwsgi/apps-available/{0}.ini'.format(env.projname),
             use_sudo=True, mode=0466)
-        sudo('ln -sf /etc/uwsgi/apps-available/{0}.ini /etc/uwsgi/apps-enabled/{0}.ini'.format(env.projname))
+        sudo('ln -sf /etc/uwsgi/apps-available/{0}.ini '
+             '/etc/uwsgi/apps-enabled/{0}.ini'.format(env.projname))
 
     if os.path.exists(upstart_config):
         put(upstart_config, '/etc/init/{0}.conf'.format(env.projname),
