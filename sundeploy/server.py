@@ -16,4 +16,4 @@ def install_packages():
                 'git', 'python-virtualenv', 'nginx', 'uwsgi',
                 'uwsgi-plugin-python', 'python-psycopg2')
     sudo('aptitude update')
-    sudo('aptitude install {0}'.format(' '.join(packages)))
+    sudo('aptitude install -y {0}'.format(' '.join(packages)))

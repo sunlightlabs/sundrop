@@ -12,7 +12,7 @@ def install_extra_packages():
     packages = env.proj.get('extra_packages', None)
     if packages:
         sudo('aptitude update')
-        sudo('aptitude install {0}'.format(' '.join(packages)))
+        sudo('aptitude install -y {0}'.format(' '.join(packages)))
 
 def _get_ec2_metadata(type):
     with hide('running', 'stdout',  'stderr'):
