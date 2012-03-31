@@ -5,9 +5,11 @@ import ConfigParser
 from fabric.api import env, task, abort, puts
 env.use_ssh_config = True
 
+# get all commands
 from . import server
 from . import project
 
+# and promote a few to top level
 from project import deploy, update, checkconf
 
 def _load_json(fname):

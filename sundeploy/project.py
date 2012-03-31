@@ -61,7 +61,7 @@ def add_user_ebs():
     append('/etc/fstab',
            '{0} /projects/{1} xfs defaults 0 0'.format(drv, env.projname),
            use_sudo=True)
-    sudo('useradd {0} --home-dir /projects/{0}'.format(env.projname))
+    sudo('useradd {0} --home-dir /projects/{0} --base-dir /etc/skel --shell /bin/bash'.format(env.projname))
     sudo('mkdir -p /projects/{0}'.format(env.projname))
     sudo('mount /projects/{0}'.format(env.projname))
 
@@ -77,12 +77,6 @@ def make_homedir():
     sudo('mkdir -p /projects/{0}/src'.format(env.projname),  user=env.projname)
     sudo('mkdir -p /projects/{0}/data'.format(env.projname), user=env.projname)
     sudo('mkdir -p /projects/{0}/.ssh'.format(env.projname), user=env.projname)
-
-    # deploy keys
-    put('deploy-id_rsa.pub', '/projects/{0}/.ssh/id_rsa.pub'.format(env.projname),
-        use_sudo=True, mode=044)
-    put('deploy-id_rsa', '/projects/{0}/.ssh/id_rsa'.format(env.projname),
-        use_sudo=True, mode=044)
 
 
 @task
@@ -103,6 +97,12 @@ def make_venv():
                      'pip install -r {1}/requirements.txt'.format(
                          env.projname, src['dirname']))
 
+@task
+def pushkeys():
+    ssh_key = '{projdir}/ssh/id_rsa'.format(**env)
+    if os.path.exists(ssh_key):
+        put(ssh_key, '/projects/{projname}/.ssh/id_rsa'.format(**env),
+            use_sudo=True, mode=044)
 
 @task
 def pushconf():
@@ -188,7 +188,8 @@ def push_extras():
                 # copy over files
                 for file in files:
                     put(os.path.join(root, file),
-                        os.path.join(remote_root, file), use_sudo=True)
+                        os.path.join(remote_root, file), use_sudo=True,
+                        mirror_local_mode=True)
 
 @task
 def update():
@@ -222,6 +223,7 @@ def deploy():
 
     # fill out home dir
     make_homedir()
+    pushkeys()
     checkout()
 
     # if explicity set venv=false, skip venv
@@ -239,3 +241,7 @@ def deploy():
 
     # do post-install hooks
     postinstall()
+
+@task
+def viewlog(logname):
+    sudo('tail -f /projects/{projname}/logs/{0}'.format(logname, **env))
