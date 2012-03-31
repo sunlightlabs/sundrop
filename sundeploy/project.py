@@ -108,7 +108,7 @@ def make_venv():
 
 
 @task
-def push_serverconf():
+def pushconf():
     nginx_config = '{0}/nginx.conf'.format(env.projdir)
     uwsgi_config = '{0}/uwsgi.ini'.format(env.projdir)
     upstart_config = '{0}/upstart.conf'.format(env.projdir)
@@ -154,7 +154,7 @@ def _remotediff(localfile, remote_path):
         os.remove(tmpname)
 
 @task
-def compare_serverconf():
+def checkconf():
     nginx_config = '{0}/nginx.conf'.format(env.projdir)
     uwsgi_config = '{0}/uwsgi.ini'.format(env.projdir)
     upstart_config = '{0}/upstart.conf'.format(env.projdir)
@@ -165,7 +165,7 @@ def compare_serverconf():
     _remotediff(uwsgi_config,
                 '/etc/uwsgi/apps-available/{0}.ini'.format(env.projname))
     _remotediff(upstart_config,
-                '/etc/upstart/{0}.conf'.format(env.projname))
+                '/etc/init/{0}.conf'.format(env.projname))
     with settings(hide('running', 'stderr', 'stdout', 'warnings'), warn_only=True):
         sudo('crontab -l > /tmp/crondump-{0}'.format(env.projname),
              user=env.projname)
@@ -209,13 +209,13 @@ def restart_uwsgi():
 
 
 @task
-def do_postinstall():
+def postinstall():
     for pi_cmd in env.proj.get('post_install', []):
         sudo(pi_cmd)
 
 
 @task
-def rollout():
+def deploy():
     # mount drive
     add_user_ebs()
 
@@ -225,7 +225,7 @@ def rollout():
     make_homedir()
     checkout()
 
-    # if they explicity set venv=false, skip venv
+    # if explicity set venv=false, skip venv
     if not env.proj.get('venv', True):
         puts('skipping venv creation')
         return
@@ -236,7 +236,7 @@ def rollout():
     push_extras()
 
     # push server-wide changes
-    push_serverconf()
+    pushconf()
 
-    # do post-install stuff
-    do_postinstall()
+    # do post-install hooks
+    postinstall()

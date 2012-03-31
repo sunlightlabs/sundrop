@@ -8,6 +8,7 @@ env.use_ssh_config = True
 from . import server
 from . import project
 
+from project import deploy, update, checkconf
 
 def _load_json(fname):
     fname = os.path.join(env.CONFIG_DIR, fname)
