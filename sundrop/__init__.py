@@ -8,6 +8,7 @@ env.use_ssh_config = True
 # get all commands
 from . import server
 from . import project
+from . import user
 
 # and promote a few to top level
 from project import deploy, update, checkconf
@@ -27,7 +28,7 @@ def _init():
     try:
         env.CONFIG_DIR = os.path.expanduser(cp.get('sundrop', 'config_dir'))
     except:
-        abort('no [sundrop] config_dir set in {CONFIG_FILE}'.format(**env))
+        abort('no [sundrop] config_dir set in {0}'.format(CONFIG_FILE))
 
     try:
         env.AWS_KEY = cp.get('aws', 'key')

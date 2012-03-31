@@ -6,6 +6,7 @@ from fabric.colors import red, green
 from fabric.contrib.files import append, contains, exists
 import boto
 
+from .utils import copy_dir
 
 @task
 def install_extra_packages():
@@ -173,23 +174,9 @@ def checkconf():
 
 @task
 def push_extras():
-    extra_dir = '{0}/extra/'.format(env.projdir)
-
-    # go into project home dir
-    with cd('/projects/{0}'.format(env.projname)):
-
-        # get all files in <projname>/extra
-        for root, dirs, files in os.walk(extra_dir):
-            # try and create directory if there are files to be put here
-            if files:
-                remote_root = root.replace(extra_dir, '')
-                sudo('mkdir -p {0}'.format(remote_root), user=env.projname)
-
-                # copy over files
-                for file in files:
-                    put(os.path.join(root, file),
-                        os.path.join(remote_root, file), use_sudo=True,
-                        mirror_local_mode=True)
+    local_dir = '{0}/extra/'.format(env.projdir)
+    remote_dir = '/projects/{0}'.format(env.projname)
+    copy_dir(local_dir, remote_dir, env.projname)
 
 @task
 def update():
