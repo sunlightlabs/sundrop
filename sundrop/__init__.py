@@ -12,6 +12,9 @@ from . import user
 
 # and promote a few to top level
 from project import deploy, update, checkconf
+deploy = task(deploy)
+update = task(update)
+checkconf = task(checkconf)
 
 def _load_json(fname):
     fname = os.path.join(env.CONFIG_DIR, fname)
@@ -48,12 +51,14 @@ _init()
 
 @task
 def lsproj():
+    """ list available projects """
     for p in env.PROJECTS:
         puts('    {0}'.format(p))
 
 
 @task
 def production():
+    """ set deploy mode to production """
     if env.hosts:
         abort('multiple hosts specified: "{0}" and "production"'.format(
             ','.join(env.hosts)
@@ -63,6 +68,7 @@ def production():
 
 @task
 def staging():
+    """ set deploy mode to staging """
     if env.hosts:
         abort('multiple hosts specified: "{0}" and "staging"'.format(
             ','.join(env.hosts)
@@ -72,6 +78,7 @@ def staging():
 
 @task
 def proj(projname):
+    """ set active project """
     env.projname = projname
     env.projdir = os.path.join(env.CONFIG_DIR, projname)
     env.proj = env.PROJECTS[projname]

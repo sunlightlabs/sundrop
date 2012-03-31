@@ -153,8 +153,9 @@ def _remotediff(localfile, remote_path):
                 puts(green('{0} matches remote'.format(localfile)))
         os.remove(tmpname)
 
-@task
+# @task -- promoted to top level
 def checkconf():
+    """ check local config vs. deployed """
     nginx_config = '{0}/nginx.conf'.format(env.projdir)
     uwsgi_config = '{0}/uwsgi.ini'.format(env.projdir)
     upstart_config = '{0}/upstart.conf'.format(env.projdir)
@@ -178,8 +179,9 @@ def push_extras():
     remote_dir = '/projects/{0}'.format(env.projname)
     copy_dir(local_dir, remote_dir, env.projname)
 
-@task
+# @task -- promoted to top level
 def update():
+    """ update all git repositories """
     for src in env.proj['src']:
         with cd('~{0}/src/{1}'.format(env.projname, src['dirname'])):
             sudo('git pull origin master', user=env.projname)
@@ -201,8 +203,9 @@ def postinstall():
         sudo(pi_cmd)
 
 
-@task
+# @task -- promoted to top level
 def deploy():
+    """ deploy a project from scratch """
     # mount drive
     add_user_ebs()
 
@@ -230,5 +233,5 @@ def deploy():
     postinstall()
 
 @task
-def viewlog(logname):
+def tail(logname):
     sudo('tail -f /projects/{projname}/logs/{0}'.format(logname, **env))
