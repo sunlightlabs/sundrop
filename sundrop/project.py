@@ -111,6 +111,7 @@ def pushconf():
     uwsgi_config = '{0}/uwsgi.ini'.format(env.projdir)
     upstart_config = '{0}/upstart.conf'.format(env.projdir)
     cron_config = '{0}/cron'.format(env.projdir)
+    upstart_init_dir = '{0}/init/'.format(env.projdir)
 
     if os.path.exists(nginx_config):
         put(nginx_config,
@@ -129,6 +130,9 @@ def pushconf():
     if os.path.exists(upstart_config):
         put(upstart_config, '/etc/init/{0}.conf'.format(env.projname),
             use_sudo=True, mode=0466)
+
+    if os.path.exists(upstart_init_dir):
+        copy_dir(upstart_init_dir, '/etc/init/')
 
     if os.path.exists(cron_config):
         # copy cron over, update it, and drop it
