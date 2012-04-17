@@ -57,23 +57,27 @@ def lsproj():
 
 
 @task
-def production():
+def production(projname=None):
     """ set deploy mode to production """
     if env.hosts:
         abort('multiple hosts specified: "{0}" and "production"'.format(
             ','.join(env.hosts)
         ))
     env.server_type = 'production'
+    if projname:
+        proj(projname)
 
 
 @task
-def staging():
+def staging(projname=None):
     """ set deploy mode to staging """
     if env.hosts:
         abort('multiple hosts specified: "{0}" and "staging"'.format(
             ','.join(env.hosts)
         ))
     env.server_type = 'staging'
+    if projname:
+        proj(projname)
 
 
 @task
