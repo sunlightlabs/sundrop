@@ -223,7 +223,6 @@ def deploy():
     # if explicity set venv=false, skip venv
     if not env.proj.get('venv', True):
         puts('skipping venv creation')
-        return
     else:
         make_venv()
 
