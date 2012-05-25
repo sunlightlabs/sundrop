@@ -1,5 +1,7 @@
 import os
 import json
+import yaml
+import glob
 import ConfigParser
 
 from fabric.api import env, task, abort, puts
@@ -42,8 +44,6 @@ def _init():
     except:
         pass
 
-    env.PROJECTS = _load_json('projects.json')
-
 
 # always call init
 _init()
@@ -52,8 +52,8 @@ _init()
 @task
 def lsproj():
     """ list available projects """
-    for p in env.PROJECTS:
-        puts('    {0}'.format(p))
+    for p in glob.glob('*/config.yaml'):
+        puts('    {0}'.format(p.split('/')[0]))
 
 
 @task
@@ -85,7 +85,7 @@ def proj(projname):
     """ set active project """
     env.projname = projname
     env.projdir = os.path.join(env.CONFIG_DIR, projname)
-    env.proj = env.PROJECTS[projname]
+    env.proj = yaml.load(open('{0}/config.yaml'.format(projname)))
     if not env.hosts:
         if not hasattr(env, 'server_type'):
             abort('no hosts specified, use -H or production|staging')
