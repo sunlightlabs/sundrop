@@ -13,7 +13,7 @@ def hostname(hostname):
 @task
 def install_packages():
     packages = ('xfsprogs', 'python-dev', 'build-essential',
-                'git', 'python-virtualenv', 'nginx', 'uwsgi',
+                'git', 'mercurial', 'python-virtualenv', 'nginx', 'uwsgi',
                 'uwsgi-plugin-python', 'python-psycopg2')
     sudo('aptitude update')
     sudo('aptitude install -y {0}'.format(' '.join(packages)))
