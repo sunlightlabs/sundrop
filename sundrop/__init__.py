@@ -11,6 +11,7 @@ env.use_ssh_config = True
 from . import server
 from . import project
 from . import user
+from . import services
 
 # and promote a few to top level
 from project import deploy, update, checkconf

@@ -1,12 +1,10 @@
 import os
-import time
 from fabric.api import (local, sudo, run, env, cd, put, get, settings,
                         hide, abort, puts, task)
 from fabric.colors import red, green
 from fabric.contrib.files import append, contains, exists
-import boto
 
-from .utils import copy_dir
+from .utils import copy_dir, add_ebs
 from .server import meet
 
 @task
@@ -21,11 +19,6 @@ def add_related_servers():
     for hostname, ip in env.proj.get('related_servers', {}).iteritems():
         meet(hostname, ip)
 
-def _get_ec2_metadata(type):
-    with hide('running', 'stdout',  'stderr'):
-        r = sudo('wget -q -O - http://169.254.169.254/latest/meta-data/{0}'.format(type))
-        return r
-
 @task
 def add_user_ebs():
     add_ebs(env.proj['ebs_size_gb'],
@@ -33,52 +26,6 @@ def add_user_ebs():
     sudo('useradd {0} --home-dir /projects/{0} --base-dir /etc/skel --shell /bin/bash'.format(env.projname))
     # chown it all
     sudo('chown {0}:{0} /projects/{0}'.format(env.projname))
-
-
-def add_ebs(size_gb, path):
-    ec2 = boto.connect_ec2(env.AWS_KEY, env.AWS_SECRET)
-    # get ec2 metadata
-    zone = _get_ec2_metadata('placement/availability-zone')
-    instance_id = _get_ec2_metadata('instance-id')
-
-    # create and attach drive
-    volume = ec2.create_volume(size_gb, zone)
-
-    # figure out where drive should be mounted
-    letters = 'fghijklmnopqrstuvw'
-
-    for letter in letters:
-        drv = '/dev/xvd{0}'.format(letter)
-
-        # skip this letter if already mounted
-        if contains('/proc/partitions', 'xvd{0}'.format(letter)):
-            continue
-
-        # attach the drive, replacing xv with sd b/c of amazon quirk
-        volume.attach(instance_id, drv.replace('xv', 's'))
-        # break if we suceeded
-        break
-    else:
-        # only executed if we didn't break
-        abort('unable to mount drive')
-        # TODO: ensure drive is cleaned up
-
-    ec2.create_tags([volume.id],
-                    {'Name': '{0} for {1}'.format(path, instance_id)})
-
-    puts('waiting for {0}...'.format(drv))
-    while not exists(drv):
-        time.sleep(1)
-
-    # format and mount the drive
-    sudo('mkfs.xfs {0}'.format(drv))
-    append('/etc/fstab', '{0} {1} xfs defaults 0 0'.format(drv, path),
-           use_sudo=True)
-
-    # make & mount
-    sudo('mkdir -p {0}'.format(path))
-    sudo('mount {0}'.format(path))
-
 
 
 @task
