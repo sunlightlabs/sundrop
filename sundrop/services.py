@@ -3,7 +3,7 @@ from fabric.contrib.files import append
 from .utils import add_ebs
 
 @task
-def mongodb(size_gb):
+def mongodb(size_gb, replset=None):
     add_ebs(size_gb, '/var/lib/mongodb/')
     sudo('apt-key adv --keyserver keyserver.ubuntu.com --recv 7F0CEB10')
     append('/etc/apt/sources.list.d/mongo.list',
@@ -11,3 +11,7 @@ def mongodb(size_gb):
            use_sudo=True)
     sudo('apt-get update')
     sudo('apt-get install -y mongodb-10gen')
+    if replset:
+        append('/etc/mongodb.conf', 'replSet = {0}'.format(replset),
+               use_sudo=True)
+    sudo('restart mongodb')
