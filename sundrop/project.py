@@ -18,8 +18,8 @@ def install_extra_packages():
 
 @task
 def add_related_servers():
-    for server in env.proj.get('related_servers', []):
-        meet(**server)
+    for hostname, ip in env.proj.get('related_servers', {}).iteritems():
+        meet(hostname, ip)
 
 def _get_ec2_metadata(type):
     with hide('running', 'stdout',  'stderr'):
