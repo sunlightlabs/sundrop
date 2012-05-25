@@ -93,13 +93,15 @@ def checkout():
 def make_venv():
     sudo('virtualenv /projects/{0}/virt'.format(env.projname),
          user=env.projname)
-
     with cd('~{0}/src'.format(env.projname)):
         for src in env.proj['src']:
-            if exists('{0}/requirements.txt'.format(src['dirname'])):
+            reqfile = '{0}/{1}'.format(src['dirname'],
+                                       src.get('requirements_file',
+                                               'requirements.txt'))
+
+            if exists(reqfile):
                 sudo('source ~{0}/virt/bin/activate && '
-                     'pip install -r {1}/requirements.txt'.format(
-                         env.projname, src['dirname']))
+                     'pip install -r {1}'.format(env.projname, reqfile))
 
 @task
 def pushkeys():
