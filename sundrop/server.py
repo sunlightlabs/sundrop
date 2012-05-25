@@ -11,6 +11,10 @@ def hostname(hostname):
     sudo('start hostname')
 
 @task
+def meet(hostname, ip):
+    append('/etc/hosts', '{0} {1}'.format(ip, hostname), use_sudo=True)
+
+@task
 def install_packages():
     packages = ('xfsprogs', 'python-dev', 'build-essential',
                 'git', 'python-virtualenv', 'nginx', 'uwsgi',

@@ -7,6 +7,7 @@ from fabric.contrib.files import append, contains, exists
 import boto
 
 from .utils import copy_dir
+from .server import meet
 
 @task
 def install_extra_packages():
@@ -14,6 +15,11 @@ def install_extra_packages():
     if packages:
         sudo('aptitude update')
         sudo('aptitude install -y {0}'.format(' '.join(packages)))
+
+@task
+def add_related_servers():
+    for server in env.proj.get('related_servers', []):
+        meet(**server)
 
 def _get_ec2_metadata(type):
     with hide('running', 'stdout',  'stderr'):
@@ -215,6 +221,8 @@ def deploy():
     """ deploy a project from scratch """
     # mount drive
     add_user_ebs()
+
+    add_related_servers()
 
     install_extra_packages()
 
