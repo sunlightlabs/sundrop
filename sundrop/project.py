@@ -28,13 +28,21 @@ def _get_ec2_metadata(type):
 
 @task
 def add_user_ebs():
+    add_ebs(env.proj['ebs_size_gb'],
+            '/projects/{0}'.format(env.projname))
+    sudo('useradd {0} --home-dir /projects/{0} --base-dir /etc/skel --shell /bin/bash'.format(env.projname))
+    # chown it all
+    sudo('chown {0}:{0} /projects/{0}'.format(env.projname))
+
+
+def add_ebs(size_gb, path):
     ec2 = boto.connect_ec2(env.AWS_KEY, env.AWS_SECRET)
     # get ec2 metadata
     zone = _get_ec2_metadata('placement/availability-zone')
     instance_id = _get_ec2_metadata('instance-id')
 
     # create and attach drive
-    volume = ec2.create_volume(env.proj['ebs_size_gb'], zone)
+    volume = ec2.create_volume(size_gb, zone)
 
     # figure out where drive should be mounted
     letters = 'fghijklmnopqrstuvw'
@@ -56,8 +64,7 @@ def add_user_ebs():
         # TODO: ensure drive is cleaned up
 
     ec2.create_tags([volume.id],
-                    {'Name': '~{0} for {1}'.format(env.projname,
-                                                      instance_id)})
+                    {'Name': '{0} for {1}'.format(path, instance_id)})
 
     puts('waiting for {0}...'.format(drv))
     while not exists(drv):
@@ -65,15 +72,13 @@ def add_user_ebs():
 
     # format and mount the drive
     sudo('mkfs.xfs {0}'.format(drv))
-    append('/etc/fstab',
-           '{0} /projects/{1} xfs defaults 0 0'.format(drv, env.projname),
+    append('/etc/fstab', '{0} {1} xfs defaults 0 0'.format(drv, path),
            use_sudo=True)
-    sudo('useradd {0} --home-dir /projects/{0} --base-dir /etc/skel --shell /bin/bash'.format(env.projname))
-    sudo('mkdir -p /projects/{0}'.format(env.projname))
-    sudo('mount /projects/{0}'.format(env.projname))
 
-    # chown it all
-    sudo('chown {0}:{0} /projects/{0}'.format(env.projname))
+    # make & mount
+    sudo('mkdir -p {0}'.format(path))
+    sudo('mount {0}'.format(path))
+
 
 
 @task
