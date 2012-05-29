@@ -193,7 +193,7 @@ def update():
     """ update all git repositories """
     for src in env.proj['src']:
         with cd('~{0}/src/{1}'.format(env.projname, src['dirname'])):
-            sudo('git pull origin master', user=env.projname)
+            sudo('git pull', user=env.projname)
 
 
 @task
