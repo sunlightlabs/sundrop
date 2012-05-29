@@ -27,7 +27,8 @@ def _load_json(fname):
 
 
 def _init():
-    CONFIG_FILE = os.path.expanduser('~/.sundrop')
+    CONFIG_FILE = os.path.expanduser(getattr(env, 'SUNDROP_CONFIG',
+                                             '~/.sundrop'))
     cp = ConfigParser.ConfigParser()
     cp.read(CONFIG_FILE)
     try:
