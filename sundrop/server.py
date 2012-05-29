@@ -11,9 +11,28 @@ def hostname(hostname):
     sudo('start hostname')
 
 @task
-def install_packages():
-    packages = ('xfsprogs', 'python-dev', 'build-essential',
-                'git', 'mercurial', 'python-virtualenv', 'nginx', 'uwsgi',
-                'uwsgi-plugin-python', 'python-psycopg2')
+def meet(hostname, ip):
+    append('/etc/hosts', '{0} {1}'.format(ip, hostname), use_sudo=True)
+
+@task
+def install_packages(*roles):
+    packages = {'core': ('xfsprogs', 'build-essential', 'git', 'mercurial',
+                         'munin-node'),
+                'python': ('python-dev', 'python-virtualenv', 'nginx', 'uwsgi',
+                           'uwsgi-plugin-python'),
+               }
     sudo('aptitude update')
-    sudo('aptitude install -y {0}'.format(' '.join(packages)))
+    sudo('aptitude upgrade')
+    for role in roles:
+        sudo('aptitude install -y {0}'.format(' '.join(packages[role])))
+
+@task
+def configure_munin():
+    # edit local /etc/munin/munin-node.conf to allow access from munin
+    # add a file to munin:/etc/munin/munin-conf.d
+    pass
+
+@task
+def init(name, *roles):
+    hostname(name)
+    install_packages(*roles)
