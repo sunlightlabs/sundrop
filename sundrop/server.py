@@ -26,11 +26,6 @@ def install_packages(*roles):
     for role in roles:
         sudo('aptitude install -y {0}'.format(' '.join(packages[role])))
 
-@task
-def configure_munin():
-    # edit local /etc/munin/munin-node.conf to allow access from munin
-    # add a file to munin:/etc/munin/munin-conf.d
-    pass
 
 @task
 def init(name, *roles):
