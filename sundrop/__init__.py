@@ -28,7 +28,8 @@ def _load_json(fname):
 
 
 def _init():
-    CONFIG_FILE = os.path.expanduser('~/.sundrop')
+    CONFIG_FILE = os.path.expanduser(getattr(env, 'SUNDROP_CONFIG',
+                                             '~/.sundrop'))
     cp = ConfigParser.ConfigParser()
     cp.read(CONFIG_FILE)
     try:
@@ -53,8 +54,9 @@ _init()
 @task
 def lsproj():
     """ list available projects """
-    for p in glob.glob('*/config.yaml'):
-        puts('    {0}'.format(p.split('/')[0]))
+    dir = os.path.join(env.CONFIG_DIR, '*/config.yaml')
+    for p in glob.glob(dir):
+        puts('    {0}'.format(p.split('/')[-2]))
 
 
 @task
@@ -86,7 +88,7 @@ def proj(projname):
     """ set active project """
     env.projname = projname
     env.projdir = os.path.join(env.CONFIG_DIR, projname)
-    env.proj = yaml.load(open('{0}/config.yaml'.format(projname)))
+    env.proj = yaml.load(open('{0}/config.yaml'.format(env.projdir)))
     if not env.hosts:
         if not hasattr(env, 'server_type'):
             abort('no hosts specified, use -H or production|staging')
