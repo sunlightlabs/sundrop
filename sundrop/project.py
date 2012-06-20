@@ -231,3 +231,7 @@ def deploy():
 @task
 def tail(logname):
     sudo('tail -f /projects/{projname}/logs/{0}'.format(logname, **env))
+
+@task
+def django(command):
+    sudo('/projects/{projname}/virt/bin/python `find /projects/{projname}/src/ -name manage.py` {0}'.format(command, **env))
