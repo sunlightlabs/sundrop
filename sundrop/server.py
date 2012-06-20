@@ -16,18 +16,18 @@ def meet(hostname, ip):
 
 @task
 def install_packages(*roles):
-    packages = {'core': ('xfsprogs', 'build-essential', 'git', 'mercurial',
-                         'munin-node'),
+    packages = {'core': ('xfsprogs', 'build-essential', 'git', 'mercurial'),
                 'python': ('python-dev', 'python-virtualenv', 'nginx', 'uwsgi',
                            'uwsgi-plugin-python'),
                }
     sudo('aptitude update')
-    sudo('aptitude upgrade')
+    sudo('aptitude upgrade -y')
     for role in roles:
         sudo('aptitude install -y {0}'.format(' '.join(packages[role])))
 
 @task
 def configure_munin():
+    # install 'munin-node'
     # edit local /etc/munin/munin-node.conf to allow access from munin
     # add a file to munin:/etc/munin/munin-conf.d
     pass

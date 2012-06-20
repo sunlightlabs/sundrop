@@ -83,12 +83,20 @@ def add_ebs(size_gb, path):
 
 @task
 def make_homedir():
-
     # make subdirs
     sudo('mkdir -p /projects/{0}/logs'.format(env.projname), user=env.projname)
     sudo('mkdir -p /projects/{0}/src'.format(env.projname),  user=env.projname)
     sudo('mkdir -p /projects/{0}/data'.format(env.projname), user=env.projname)
     sudo('mkdir -p /projects/{0}/.ssh'.format(env.projname), user=env.projname)
+
+
+@task
+def make_key():
+    sudo("ssh-keygen -t rsa -C '{0} deploy key' -N '' -f /projects/{0}/.ssh/id_rsa".format(
+        env.projname), user=env.projname)
+    sudo('cat /projects/{0}/.ssh/id_rsa.pub'.format(env.projname),
+         user=env.projname)
+
 
 
 @task
@@ -121,13 +129,21 @@ def pushkeys():
         put(ssh_key, '/projects/{projname}/.ssh/id_rsa'.format(**env),
             use_sudo=True, mode=044)
 
+def _get_conf(name):
+    # check for server-specific conf
+    sconf = os.path.join(env.projdir, env.server_type, name)
+    if os.path.exists(sconf):
+        return sconf
+    else:
+        return os.path.join(env.projdir, name)
+
 @task
 def pushconf():
-    nginx_config = '{0}/nginx.conf'.format(env.projdir)
-    uwsgi_config = '{0}/uwsgi.ini'.format(env.projdir)
-    upstart_config = '{0}/upstart.conf'.format(env.projdir)
-    cron_config = '{0}/cron'.format(env.projdir)
-    upstart_init_dir = '{0}/init/'.format(env.projdir)
+    nginx_config = _get_conf('nginx.conf')
+    uwsgi_config = _get_conf('uwsgi.ini')
+    upstart_config = _get_conf('upstart.conf')
+    cron_config = _get_conf('cron')
+    upstart_init_dir = _get_conf('init/')
 
     if os.path.exists(nginx_config):
         put(nginx_config,
@@ -176,10 +192,10 @@ def _remotediff(localfile, remote_path):
 # @task -- promoted to top level
 def checkconf():
     """ check local config vs. deployed """
-    nginx_config = '{0}/nginx.conf'.format(env.projdir)
-    uwsgi_config = '{0}/uwsgi.ini'.format(env.projdir)
-    upstart_config = '{0}/upstart.conf'.format(env.projdir)
-    cron_config = '{0}/cron'.format(env.projdir)
+    nginx_config = _get_conf('nginx.conf')
+    uwsgi_config = _get_conf('uwsgi.ini')
+    upstart_config = _get_conf('upstart.conf')
+    cron_config = _get_conf('cron')
 
     _remotediff(nginx_config,
                 '/etc/nginx/sites-available/{0}'.format(env.projname))
@@ -195,7 +211,7 @@ def checkconf():
 
 @task
 def push_extras():
-    local_dir = '{0}/extra/'.format(env.projdir)
+    local_dir = _get_conf('extra')
     remote_dir = '/projects/{0}'.format(env.projname)
     copy_dir(local_dir, remote_dir, env.projname)
 
