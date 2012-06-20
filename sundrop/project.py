@@ -156,9 +156,21 @@ def checkconf():
     _remotediff(cron_config,
                 '/tmp/crondump-{0}'.format(env.projname))
 
+    # check extras too
+    local_dir = _get_conf('extra/')
+    remote_dir = '/projects/{0}'.format(env.projname)
+    for root, dirs, files in os.walk(local_dir):
+        remote_root = os.path.join(remote_dir, root.replace(local_dir, ''))
+
+        # copy over files
+        for file in files:
+            remote_file = os.path.join(remote_root, file)
+            _remotediff(os.path.join(root, file),
+                        os.path.join(remote_root, file))
+
 @task
 def push_extras():
-    local_dir = _get_conf('extra')
+    local_dir = _get_conf('extra/')
     remote_dir = '/projects/{0}'.format(env.projname)
     copy_dir(local_dir, remote_dir, env.projname)
 
