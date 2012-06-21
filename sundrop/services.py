@@ -19,6 +19,15 @@ def mongodb(size_gb, replset=None):
     # add arbiter
 
 @task
+def jenkins(size_gb):
+    add_ebs(size_gb, '/var/lib/jenkins/')
+    sudo('wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | sudo apt-key add -')
+    append('/etc/apt/sources.list.d/jenkins.list',
+           'deb http://pkg.jenkins-ci.org/debian binary/', use_sudo=True)
+    sudo('apt-get update')
+    sudo('apt-get install -y openjdk-6-jre openjdk-6-jdk jenkins')
+
+@task
 def munin(munin_local_ip, munin_host):
     sudo('apt-get install -y munin-node')
     # edit local /etc/munin/munin-node.conf to allow access from munin
