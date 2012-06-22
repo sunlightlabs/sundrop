@@ -67,7 +67,9 @@ def make_venv():
 
             if exists(reqfile):
                 sudo('source ~{0}/virt/bin/activate && '
-                     'pip install -r {1}'.format(env.projname, reqfile))
+                     'pip install -r {1}'.format(env.projname, reqfile),
+                     user=env.projname
+                    )
 
 @task
 def pushkeys():
