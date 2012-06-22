@@ -176,6 +176,11 @@ def push_extras():
     remote_dir = '/projects/{0}'.format(env.projname)
     copy_dir(local_dir, remote_dir, env.projname)
 
+@task
+def push_system_extras():
+    local_dir = _get_conf('system/')
+    copy_dir(local_dir, '/', env.projname)
+
 # @task -- promoted to top level
 def update():
     """ update all git repositories """
