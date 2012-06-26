@@ -30,27 +30,24 @@ documentation for detailed documentation on all options available.
 Creating a Project Directory
 ----------------------------
 
-A project directory is required to have a ``projects.json`` and a directory
-named for each project specified in ``projects.json``.
+A project directory has a directory for each project, each of which has
+(at a minimum) a config.yaml file within it.
 
-`projects.json` describes all of your projects.  It is important
+`config.yaml` describes the project.  It is important
 to specify what server(s) you want your project to run on (`production` and
 `staging`), the size of the EBS volume you wish to create (`ebs_size_gb`), and
 any repositories that need to be checked out (`src`).
 
-Example projects.json::
+Example projects.yaml::
 
-    {
-    "labssite": {
-        "production": "main",
-        "ebs_size_gb": 5,
-        "src": [
-            {"gitrepo": "git://github.com/sunlightlabs/labssite.git",
-             "dirname": "openstates"}
-        ],
-        "extra_packages": ["redis-server"]
-    }
-    }
+production: 10.0.0.1
+ebs_size_gb: 5
+src:
+    -
+        gitrepo: git://github.com/sunlightlabs/labssite.git
+        dirname: labssite
+extra_packages:
+    - redis-server
 
 
 Detailed Documentation
