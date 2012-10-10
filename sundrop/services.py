@@ -3,8 +3,8 @@ from fabric.contrib.files import append
 from .utils import add_ebs
 
 @task
-def mongodb(size_gb, replset=None):
-    add_ebs(size_gb, '/var/lib/mongodb/')
+def mongodb(size_gb, replset=None, iops=400):
+    add_ebs(size_gb, '/var/lib/mongodb/', iops=iops)
     sudo('apt-key adv --keyserver keyserver.ubuntu.com --recv 7F0CEB10')
     append('/etc/apt/sources.list.d/mongo.list',
      'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen',
@@ -16,7 +16,7 @@ def mongodb(size_gb, replset=None):
                use_sudo=True)
     sudo('restart mongodb')
 
-    # add arbiter
+    # add arbiter?
 
 @task
 def jenkins(size_gb):
