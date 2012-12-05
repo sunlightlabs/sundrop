@@ -3,7 +3,7 @@ from fabric.contrib.files import append
 from .utils import add_ebs
 
 @task
-def mongodb(size_gb, replset=None, iops=400):
+def mongodb(size_gb, replset=None, iops=None):
     add_ebs(size_gb, '/var/lib/mongodb/', iops=iops)
     sudo('apt-key adv --keyserver keyserver.ubuntu.com --recv 7F0CEB10')
     append('/etc/apt/sources.list.d/mongo.list',

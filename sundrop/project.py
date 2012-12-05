@@ -22,7 +22,9 @@ def add_related_servers():
 @task
 def add_user_ebs():
     add_ebs(env.proj['ebs_size_gb'],
-            '/projects/{0}'.format(env.projname))
+            '/projects/{0}'.format(env.projname),
+            env.proj.get('ebs_iops')    # default is None
+           )
     sudo('useradd {0} --home-dir /projects/{0} --base-dir /etc/skel --shell /bin/bash'.format(env.projname))
     # chown it all
     sudo('chown {0}:{0} /projects/{0}'.format(env.projname))
@@ -49,7 +51,7 @@ def make_key():
 @task
 def checkout():
     with cd('~{0}/src'.format(env.projname)):
-        for src in env.proj['src']:
+        for src in env.proj.get('src', []):
             sudo('git clone {0}'.format(src['gitrepo']), user=env.projname)
             with cd(src['dirname']):
                 sudo('git checkout {0}'.format(src.get('branch', 'master')),

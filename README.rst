@@ -60,3 +60,11 @@ Detailed Documentation
 
 config_dir
     path to config directory, ~ will be expanded
+
+
+Usage
+=====
+
+If there's a new server being used, the first thing to do is
+
+sundrop {command that sets server} server.init
