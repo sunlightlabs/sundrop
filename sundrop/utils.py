@@ -34,8 +34,8 @@ def add_ebs(size_gb, path, iops=None):
 
     # create and attach drive
     volume = ec2.create_volume(size_gb, zone,
-                               volume_type='io1' if iops else 'standard',
-                               iops=iops
+                               #volume_type='io1' if iops else 'standard',
+                               #iops=iops
                               )
 
     # figure out where drive should be mounted
