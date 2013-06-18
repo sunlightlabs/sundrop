@@ -68,7 +68,7 @@ Usage
 If there's a new server being used, the first thing to do is
 
 # initialize hostname to richmond, install core & python packages
-sundrop -H richmond server.init,richmond,core,python
+sundrop -H richmond server.init:richmond,core,python
 # add a 30GB mongo instance
 sundrop -H richmond services.mongodb:30
 # deploy a project
