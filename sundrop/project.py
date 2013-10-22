@@ -52,7 +52,8 @@ def make_key():
 def checkout():
     with cd('~{0}/src'.format(env.projname)):
         for src in env.proj.get('src', []):
-            sudo('git clone {0}'.format(src['gitrepo']), user=env.projname)
+            sudo('git clone {0} {1}'.format(src['gitrepo'], src['dirname']),
+                 user=env.projname)
             with cd(src['dirname']):
                 sudo('git checkout {0}'.format(src.get('branch', 'master')),
                      user=env.projname)

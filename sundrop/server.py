@@ -24,7 +24,8 @@ def install_packages(*roles):
     sudo('aptitude upgrade -y')
     for role in roles:
         sudo('aptitude install -y {0}'.format(' '.join(packages[role])))
-    sudo('rm /etc/nginx/sites-enabled/default')
+    if 'python' in roles:
+        sudo('rm /etc/nginx/sites-enabled/default')
 
 @task
 def configure_munin():

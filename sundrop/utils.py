@@ -34,8 +34,8 @@ def add_ebs(size_gb, path, iops=None):
 
     # create and attach drive
     volume = ec2.create_volume(size_gb, zone,
-                               #volume_type='io1' if iops else 'standard',
-                               #iops=iops
+                               volume_type='io1' if iops else 'standard',
+                               iops=iops
                               )
 
     # figure out where drive should be mounted
@@ -49,6 +49,7 @@ def add_ebs(size_gb, path, iops=None):
             continue
 
         # attach the drive, replacing xv with sd b/c of amazon quirk
+        time.sleep(10)
         volume.attach(instance_id, drv.replace('xv', 's'))
         # break if we suceeded
         break
